@@ -70,28 +70,28 @@ void loop() {
  if (Serial.available() > 0) {
     bandera =Serial.read();
     Serial.println(bandera);
-    if (bandera == '1'){
+    if (bandera & 0x01){
       parqueo_1 = 1;
     }
-    else if (bandera == '2'){
+    else {
       parqueo_1 = 0;
     }
-    if (bandera == '3'){
+    if (bandera & 0x02){
       parqueo_2 = 1;
     }
-    else if (bandera == '4'){
+    else {
       parqueo_2 = 0;
     }
-    if (bandera == '5'){
+    if (bandera & 0x04){
       parqueo_3 = 1;
     }
-    else if (bandera == '6'){
+    else {
       parqueo_3 = 0;
     }
-    if (bandera == '7'){
+    if (bandera & 0x08){
       parqueo_4 = 1;
     }
-    else if (bandera == '8'){
+    else {
       parqueo_4 = 0;
     }
     Serial.println(parqueo_1);
@@ -103,7 +103,7 @@ void loop() {
 void handle_OnConnect() {
   LED1status = LOW;
   Serial.println("GPIO2 Status: OFF");
-  parq_disp = (parqueo_1 + parqueo_2 + parqueo_3 + parqueo_4 ) - 4 ;
+  parq_disp = -(parqueo_1 + parqueo_2 + parqueo_3 + parqueo_4 ) + 4 ;
   server.send(200, "text/html", SendHTML2(parqueo_1, parqueo_2, parqueo_3, parqueo_4, parq_disp));
 }
 //************************************************************************************************
@@ -125,7 +125,7 @@ void handle_led1off() {
 //************************************************************************************************
 // Procesador de HTML
 //************************************************************************************************
-String SendHTML2(uint8_t parq_1, uint8_t parq_2, uint8_t parq_3, uint8_t parq_4, uint8_t disponibles) {
+String SendHTML2(uint8_t parq_1, uint8_t parq_2, uint8_t parq_3, uint8_t parq_4, uint8_t parq_disp) {
   String pagina = "<html>\n";
 pagina +="<!doctype html>\n";
 pagina +="<html lang=\"en\">\n";
@@ -201,13 +201,15 @@ pagina +="  </tfoot>\n";
 pagina +="  \t<tr>\n";
 pagina += "<th class=table-active scope=row>Parqueos Disponible</th>\n";
 pagina += "<td class=table-info>";
+pagina += (int) parq_disp;
+pagina += "</td>\n";
 pagina +="    </tr>\n";
 pagina +="  </tfoot>\n";
 pagina +="</table>\n";
 pagina +="<script>\n";
 pagina +="function timedRefresh(timeoutPeriod) {\n";
 pagina +="\tsetTimeout(\"location.reload(true);\",timeoutPeriod);}\n";
-pagina +="window.onload = timedRefresh(5000);\n";
+pagina +="window.onload = timedRefresh(1000);\n";
 pagina +="</script>\n";
 pagina +="    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js\" integrity=\"sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4\" crossorigin=\"anonymous\"></script>\n";
 pagina +="    <script src=\"https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js\" integrity=\"sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p\" crossorigin=\"anonymous\"></script>\n";
