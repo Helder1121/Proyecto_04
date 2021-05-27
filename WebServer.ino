@@ -23,6 +23,12 @@ WebServer server(80);  // Object of WebServer(HTTP port, 80 is defult)
 uint8_t LED1pin = 2;
 bool LED1status = LOW;
 
+uint8_t bandera = 0;
+uint8_t parqueo_1 = 0;
+uint8_t parqueo_2 = 0;
+uint8_t parqueo_3 = 0;
+uint8_t parqueo_4 = 0;
+uint8_t parq_disp = 0;
 //************************************************************************************************
 // Configuración
 //************************************************************************************************
@@ -61,13 +67,34 @@ void setup() {
 //************************************************************************************************
 void loop() {
   server.handleClient();
-  if (LED1status)
-  {
-    digitalWrite(LED1pin, HIGH);
-  }
-  else
-  {
-    digitalWrite(LED1pin, LOW);
+ if (Serial.available() > 0) {
+    bandera =Serial.read();
+    Serial.println(bandera);
+    if (bandera == '1'){
+      parqueo_1 = 1;
+    }
+    else if (bandera == '2'){
+      parqueo_1 = 0;
+    }
+    if (bandera == '3'){
+      parqueo_2 = 1;
+    }
+    else if (bandera == '4'){
+      parqueo_2 = 0;
+    }
+    if (bandera == '5'){
+      parqueo_3 = 1;
+    }
+    else if (bandera == '6'){
+      parqueo_3 = 0;
+    }
+    if (bandera == '7'){
+      parqueo_4 = 1;
+    }
+    else if (bandera == '8'){
+      parqueo_4 = 0;
+    }
+    Serial.println(parqueo_1);
   }
 }
 //************************************************************************************************
@@ -76,7 +103,8 @@ void loop() {
 void handle_OnConnect() {
   LED1status = LOW;
   Serial.println("GPIO2 Status: OFF");
-  server.send(200, "text/html", SendHTML2());
+  parq_disp = (parqueo_1 + parqueo_2 + parqueo_3 + parqueo_4 ) - 4 ;
+  server.send(200, "text/html", SendHTML2(parqueo_1, parqueo_2, parqueo_3, parqueo_4, parq_disp));
 }
 //************************************************************************************************
 // Handler de led1on
@@ -97,7 +125,7 @@ void handle_led1off() {
 //************************************************************************************************
 // Procesador de HTML
 //************************************************************************************************
-String SendHTML2() {
+String SendHTML2(uint8_t parq_1, uint8_t parq_2, uint8_t parq_3, uint8_t parq_4, uint8_t disponibles) {
   String pagina = "<html>\n";
 pagina +="<!doctype html>\n";
 pagina +="<html lang=\"en\">\n";
@@ -118,26 +146,61 @@ pagina +="    </tr>\n";
 pagina +="  </thead>\n";
 pagina +="  <tbody>\n";
 pagina +="    <tr>\n";
-pagina +="      <th scope=\"row\">Espacio #1</th>\n";
-pagina +="      <td class=\"table-danger\">Ocupado</td>\n";
-pagina +="    </tr>\n";
-pagina +="    <tr>\n";
-pagina +="      <th scope=\"row\">Espacio #2</th>\n";
-pagina +="      <td class=\"table-success\">Libre</td>\n";
-pagina +="    </tr>\n";
-pagina +="    <tr>\n";
-pagina +="      <th scope=\"row\">Espacio #3</th>\n";
-pagina +="      <td class=\"table-success\">Libre</td>\n";
-pagina +="    </tr>\n";
-pagina +="    <tr>\n";
-pagina +="      <th scope=\"row\">Espacio #4</th>\n";
-pagina +="      <td class=\"table-danger\">Ocupado</td>\n";
-pagina +="    </tr>\n";
+
+if (parqueo_1 == 1){
+  pagina +="    <th scope=\"row\">Espacio #1</th>\n";
+  pagina +="    <td class=\"table table-hover\">Ocupado</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+else {
+  pagina +="    <th scope=\"row\">Espacio #1</th>\n";
+  pagina +="    <td class=\"table table-hover\">Disponible</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+if (parqueo_2 == 1){
+  pagina +="    <th scope=\"row\">Espacio #2</th>\n";
+  pagina +="    <td class=\"table table-hover\">Ocupado</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+else {
+  pagina +="    <th scope=\"row\">Espacio #2</th>\n";
+  pagina +="    <td class=\"table table-hover\">Disponible</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+if (parqueo_3 == 1){
+  pagina +="      <th scope=\"row\">Espacio #3</th>\n";
+  pagina +="      <td class=\"table table-hover\">Ocupado</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+else {
+  pagina +="      <th scope=\"row\">Espacio #3</th>\n";
+  pagina +="      <td class=\"table table-hover\">Disponible</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+if (parqueo_4 == 1){
+  pagina +="      <th scope=\"row\">Espacio #4</th>\n";
+  pagina +="      <td class=\"table table-hover\">Ocupado</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+else {
+  pagina +="      <th scope=\"row\">Espacio #4</th>\n";
+  pagina +="      <td class=\"table table-hover\">Disponible</td>\n";
+  pagina +="    </tr>\n";
+  pagina +="    <tr>\n";
+}
+
 pagina +="  </tbody>\n";
 pagina +="  </tfoot>\n";
 pagina +="  \t<tr>\n";
-pagina +="      <th scope=\"row\">Parqueos disponibles</th>\n";
-pagina +="      <td class=\"table-info\">2</td>\n";
+pagina += "<th class=table-active scope=row>Parqueos Disponible</th>\n";
+pagina += "<td class=table-info>";
 pagina +="    </tr>\n";
 pagina +="  </tfoot>\n";
 pagina +="</table>\n";
